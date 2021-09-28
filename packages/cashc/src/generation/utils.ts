@@ -5,7 +5,7 @@ import {
   PrimitiveType,
   Script,
   Type,
-} from '@cashscript/utils';
+} from '../../../utils';
 import { UnaryOperator, BinaryOperator } from '../ast/Operator';
 import { GlobalFunction, TimeOp } from '../ast/Globals';
 
@@ -19,7 +19,9 @@ export function compileTimeOp(op: TimeOp): Script {
 }
 
 export function compileCast(from: Type, to: Type): Script {
-  if (from === PrimitiveType.INT && to instanceof BytesType && to.bound !== undefined) {
+  
+  // TODO enable againg when we sort out OP_SPLIT in elements
+  /* if (from === PrimitiveType.INT && to instanceof BytesType && to.bound !== undefined) {
     return [encodeInt(to.bound), Op.OP_NUM2BIN];
   }
 
@@ -29,7 +31,7 @@ export function compileCast(from: Type, to: Type): Script {
 
   if (from === PrimitiveType.SIG && to === PrimitiveType.DATASIG) {
     return [Op.OP_SIZE, encodeInt(1), Op.OP_SUB, Op.OP_SPLIT, Op.OP_DROP];
-  }
+  } */
 
   return [];
 }
@@ -70,7 +72,7 @@ export function compileBinaryOp(op: BinaryOperator, numeric: boolean = false): S
     [BinaryOperator.BIT_AND]: [Op.OP_AND],
     [BinaryOperator.BIT_OR]: [Op.OP_OR],
     [BinaryOperator.BIT_XOR]: [Op.OP_XOR],
-    [BinaryOperator.SPLIT]: [Op.OP_SPLIT],
+    //[BinaryOperator.SPLIT]: [Op.OP_SPLIT],
   };
 
   if (numeric) {
@@ -87,7 +89,7 @@ export function compileUnaryOp(op: UnaryOperator): Op[] {
     [UnaryOperator.NOT]: [Op.OP_NOT],
     [UnaryOperator.NEGATE]: [Op.OP_NEGATE],
     [UnaryOperator.SIZE]: [Op.OP_SIZE, Op.OP_NIP],
-    [UnaryOperator.REVERSE]: [Op.OP_REVERSEBYTES],
+    //[UnaryOperator.REVERSE]: [Op.OP_REVERSEBYTES],
   };
 
   return mapping[op];
