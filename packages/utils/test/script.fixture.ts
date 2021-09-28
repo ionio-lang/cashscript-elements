@@ -27,7 +27,7 @@ export const fixtures: Fixture[] = [
     bytesize: 25,
     opcount: 4,
   },
-  {
+  /* {
     name: 'Mecenas (2021-03-12)',
     script: [
       Op.OP_4, Op.OP_PICK, hexToBin(''), Op.OP_NUMEQUAL, Op.OP_IF, Op.OP_5, Op.OP_PICK,
@@ -71,5 +71,5 @@ export const fixtures: Fixture[] = [
     bytecode: hexToBin('5479009c6355796101687f77820134947f587f547f7701207f755a7a5a7a6e7c828c7f755c7aa87bbbad567ab27502e8037b81765779537993a1636e7c94588076041976a9147e56797e0288ac7e76aa5579886d675679588078587994537994588078041976a9147e57797e0288ac7e780317a9147e5779a97e01877e6e7eaa5779886d6d686d6d6d6d5167547a519d5479a97b88547a547aac77777768'),
     bytesize: 158,
     opcount: 99,
-  },
+  }, */
 ];
