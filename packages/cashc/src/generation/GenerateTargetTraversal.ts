@@ -455,6 +455,7 @@ export default class GenerateTargetTraversal extends AstTraversal {
     this.pushToStack('(value)');
 
     // Turn sig into datasig
+    // Op.OP_0, Op.OP_SWAP, Op.OP_SUBSTR instead of OP_SPLIT, OP_DROP
     this.emit([Op.OP_SWAP, Op.OP_SIZE, Op.OP_1SUB, Op.OP_0, Op.OP_SWAP, Op.OP_SUBSTR]);
 
     // Retrieve preimage from stack and hash it

@@ -1,5 +1,5 @@
 import { hexToBin } from '@bitauth/libauth';
-import { BytesType, PrimitiveType } from '@cashscript/utils';
+import { BytesType, PrimitiveType } from '../../../utils';
 import {
   SourceFileNode,
   ContractNode,
@@ -332,6 +332,7 @@ export const fixtures: Fixture[] = [
       ),
     ),
   },
+  /*
   {
     fn: 'hodl_vault.cash',
     ast: new SourceFileNode(
@@ -424,6 +425,7 @@ export const fixtures: Fixture[] = [
       ),
     ),
   },
+  */
   {
     fn: 'covenant.cash',
     ast: new SourceFileNode(

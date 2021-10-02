@@ -250,9 +250,7 @@ export const fixtures: Fixture[] = [
       abi: [{ name: 'hello', covenant: false, inputs: [{ name: 's', type: 'sig' }, { name: 'data', type: 'bytes' }, { name: 'pk', type: 'pubkey' }] }],
       bytecode:
         // require(checkSig(s, pk))
-        'OP_DUP OP_3 OP_PICK OP_CHECKSIGVERIFY '
-        // require(checkSigFromStack(datasig(s), data, pk))
-        + 'OP_SWAP OP_ROT OP_CHECKSIGFROMSTACK',
+        'OP_DUP OP_3 OP_PICK OP_CHECKSIGVERIFY OP_SIZE OP_1SUB OP_0 OP_SWAP OP_SUBSTR OP_SWAP OP_ROT OP_CHECKSIGFROMSTACK',
       source: fs.readFileSync(path.join(__dirname, '..', 'valid-contract-files', 'checksigfromstack.cash'), { encoding: 'utf-8' }),
       compiler: {
         name: 'cashc',
@@ -266,9 +264,7 @@ export const fixtures: Fixture[] = [
     artifact: {
       contractName: 'HodlVault',
       constructorInputs: [
-        { name: 'ownerPk', type: 'pubkey' },
         { name: 'oraclePk', type: 'pubkey' },
-        { name: 'minBlock', type: 'int' },
         { name: 'priceTarget', type: 'int' },
       ],
       abi: [
@@ -276,27 +272,13 @@ export const fixtures: Fixture[] = [
           name: 'spend',
           covenant: false,
           inputs: [
-            { name: 'ownerSig', type: 'sig' },
             { name: 'oracleSig', type: 'datasig' },
-            { name: 'oracleMessage', type: 'bytes8' },
+            { name: 'oraclePrice', type: 'int' },
           ],
         },
       ],
       bytecode:
-        // int blockHeight = int(oracleMessage.split(4)[0])
-        'OP_6 OP_PICK OP_4 OP_SPLIT OP_DROP OP_BIN2NUM '
-        // int price = int(oracleMessage.split(4)[1])
-        + 'OP_7 OP_PICK OP_4 OP_SPLIT OP_NIP OP_BIN2NUM '
-        // require(blockHeight >= minBlock);
-        + 'OP_OVER OP_5 OP_ROLL OP_GREATERTHANOREQUAL OP_VERIFY '
-        // require(tx.time >= blockHeight);
-        + 'OP_SWAP OP_CHECKLOCKTIMEVERIFY OP_DROP '
-        // require(price >= priceTarget);
-        + 'OP_3 OP_ROLL OP_GREATERTHANOREQUAL OP_VERIFY '
-        // require(checkSigFromStack(oracleSig, oracleMessage, oraclePk));
-        + 'OP_3 OP_ROLL OP_4 OP_ROLL OP_3 OP_ROLL OP_CHECKSIGFROMSTACKVERIFY '
-        // require(checkSig(ownerSig, ownerPk));
-        + 'OP_CHECKSIG',
+        'OP_3 OP_PICK OP_ROT OP_GREATERTHANOREQUAL OP_VERIFY OP_SWAP OP_ROT OP_ROT OP_CHECKSIGFROMSTACK',
       source: fs.readFileSync(path.join(__dirname, '..', 'valid-contract-files', 'hodl_vault.cash'), { encoding: 'utf-8' }),
       compiler: {
         name: 'cashc',

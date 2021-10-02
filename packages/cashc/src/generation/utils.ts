@@ -1,6 +1,7 @@
 import {
   BytesType,
   encodeInt,
+  encodeString,
   Op,
   PrimitiveType,
   Script,
@@ -21,17 +22,20 @@ export function compileTimeOp(op: TimeOp): Script {
 export function compileCast(from: Type, to: Type): Script {
   
   // TODO enable againg when we sort out OP_SPLIT in elements
-  /* if (from === PrimitiveType.INT && to instanceof BytesType && to.bound !== undefined) {
-    return [encodeInt(to.bound), Op.OP_NUM2BIN];
+  if (from === PrimitiveType.INT && to instanceof BytesType && to.bound !== undefined) {
+    return [encodeString(''), Op.OP_CAT];
   }
 
+  /*
   if (from !== PrimitiveType.INT && to === PrimitiveType.INT) {
     return [Op.OP_BIN2NUM];
   }
 
+  */
+ 
   if (from === PrimitiveType.SIG && to === PrimitiveType.DATASIG) {
-    return [Op.OP_SIZE, encodeInt(1), Op.OP_SUB, Op.OP_SPLIT, Op.OP_DROP];
-  } */
+    return [Op.OP_SIZE, encodeInt(1), Op.OP_SUB, Op.OP_0, Op.OP_SWAP, Op.OP_SUBSTR];
+  }
 
   return [];
 }

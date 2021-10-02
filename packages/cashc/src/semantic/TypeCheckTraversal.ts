@@ -9,7 +9,7 @@ import {
   TupleType,
   BytesType,
   Type,
-} from '@cashscript/utils';
+} from '../../../utils';
 import {
   AssignNode,
   BranchNode,
