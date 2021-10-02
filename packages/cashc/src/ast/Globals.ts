@@ -1,4 +1,4 @@
-import { PrimitiveType, ArrayType, BytesType } from '@cashscript/utils';
+import { PrimitiveType, ArrayType, BytesType } from '../../../utils';
 import { SymbolTable, Symbol } from './SymbolTable';
 
 export const NumberUnit: { [index:string] : number } = {

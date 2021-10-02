@@ -1,4 +1,4 @@
-import { Artifact } from '@cashscript/utils';
+import { Artifact } from '../../../utils';
 import fs from 'fs';
 import path from 'path';
 import { version } from '../../src';
@@ -247,12 +247,12 @@ export const fixtures: Fixture[] = [
     artifact: {
       contractName: 'CheckSigFromStack',
       constructorInputs: [],
-      abi: [{ name: 'hello', covenant: false, inputs: [{ name: 'pk', type: 'pubkey' }, { name: 's', type: 'sig' }, { name: 'data', type: 'bytes' }] }],
+      abi: [{ name: 'hello', covenant: false, inputs: [{ name: 's', type: 'sig' }, { name: 'data', type: 'bytes' }, { name: 'pk', type: 'pubkey' }] }],
       bytecode:
         // require(checkSig(s, pk))
-        'OP_2DUP OP_CHECKSIGVERIFY '
+        'OP_DUP OP_3 OP_PICK OP_CHECKSIGVERIFY '
         // require(checkSigFromStack(datasig(s), data, pk))
-        + 'OP_SWAP OP_SIZE OP_1SUB OP_SPLIT OP_DROP OP_ROT OP_ROT OP_CHECKSIGFROMSTACK',
+        + 'OP_SWAP OP_ROT OP_CHECKSIGFROMSTACK',
       source: fs.readFileSync(path.join(__dirname, '..', 'valid-contract-files', 'checksigfromstack.cash'), { encoding: 'utf-8' }),
       compiler: {
         name: 'cashc',

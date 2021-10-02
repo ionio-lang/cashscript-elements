@@ -4,7 +4,7 @@ import {
   serializeAuthenticationInstructions,
   AuthenticationInstructions,
   hexToBin,
-  disassembleBytecodeBTC,
+  disassembleBytecode,
   flattenBinArray,
 } from '@bitauth/libauth';
 import { decodeInt, encodeInt } from './data';
@@ -69,7 +69,7 @@ export function asmToBytecode(asm: string): Uint8Array {
 
 export function bytecodeToAsm(bytecode: Uint8Array): string {
   // Convert the bytecode to libauth's ASM format
-  let asm = disassembleBytecodeBTC(bytecode);
+  let asm = disassembleBytecode(OpcodesElements, bytecode);
 
   // COnvert libauth's ASM format to BITBOX's
   asm = asm.replace(/OP_PUSHBYTES_[^\s]+/g, '');

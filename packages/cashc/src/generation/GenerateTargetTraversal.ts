@@ -10,7 +10,7 @@ import {
   resultingType,
   Script,
   scriptToAsm,
-} from '@cashscript/utils';
+} from '../../../utils';
 import {
   ContractNode,
   ParameterNode,
@@ -418,7 +418,7 @@ export default class GenerateTargetTraversal extends AstTraversal {
     node.parameters = this.visitList(node.parameters);
 
     // TODO enable again with OP_SPLIT 
-    //if (this.needsToVerifyCovenant(node)) this.verifyCovenant();
+    if (this.needsToVerifyCovenant(node)) this.verifyCovenant();;
 
     this.emit(compileGlobalFunction(node.identifier.name as GlobalFunction));
     this.popFromStack(node.parameters.length);
@@ -439,7 +439,7 @@ export default class GenerateTargetTraversal extends AstTraversal {
     return node;
   }
 
-/*   needsToVerifyCovenant(node: FunctionCallNode): boolean {
+  needsToVerifyCovenant(node: FunctionCallNode): boolean {
     if (node.identifier.name !== GlobalFunction.CHECKSIG) return false;
     if (!this.isCheckSigVerify) return false;
     if (!this.covenantNeedsToBeVerified) return false;
@@ -447,6 +447,7 @@ export default class GenerateTargetTraversal extends AstTraversal {
     return true;
   }
 
+  
   verifyCovenant(): void {
     // Duplicate [s, pk] that are on stack
     this.emit(Op.OP_2DUP);
@@ -454,7 +455,7 @@ export default class GenerateTargetTraversal extends AstTraversal {
     this.pushToStack('(value)');
 
     // Turn sig into datasig
-    this.emit([Op.OP_SWAP, Op.OP_SIZE, Op.OP_1SUB, Op.OP_SPLIT, Op.OP_DROP]);
+    this.emit([Op.OP_SWAP, Op.OP_SIZE, Op.OP_1SUB, Op.OP_0, Op.OP_SWAP, Op.OP_SUBSTR]);
 
     // Retrieve preimage from stack and hash it
     const preimageIndex = this.getStackIndex('$preimage');
@@ -470,7 +471,7 @@ export default class GenerateTargetTraversal extends AstTraversal {
     this.popFromStack(3);
 
     this.covenantNeedsToBeVerified = false;
-  } */
+  }
 
   visitInstantiation(node: InstantiationNode): Node {
     if (node.identifier.name === Class.OUTPUT_P2PKH) {

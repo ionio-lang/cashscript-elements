@@ -1,0 +1,6 @@
+contract CheckSigFromStack() {
+    function hello(sig s, bytes data,  pubkey pk) {
+        require(checkSig(s, pk));
+        require(checkSigFromStack(datasig(s), data, pk));
+    }
+}
