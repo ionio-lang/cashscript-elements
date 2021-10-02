@@ -23,8 +23,8 @@ jobs:
 
       - run: yarn install --frozen-lockfile
 
-      - run: yarn test --coverage
-      - run: yarn lint
-      - run: yarn spellcheck
-      
-      - run: yarn coverage
+      # build utils package
+      - run: cd ./packages/utils && yarn build && cd ../..
+
+      # run test with fixtures
+      - run: npx jest ./packages/cashc/test/generation/generation.test.ts
