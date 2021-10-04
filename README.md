@@ -35,16 +35,16 @@ The main way to interact with Ionio contracts and integrate them into applicatio
 
 ### Installation
 ```bash
-npm install cashscript
+npm install ionio
 ```
 
 ### Usage
 ```ts
-import { Contract, ... } from 'cashscript';
+import { Contract, ... } from 'ionio';
 ```
 
 ```js
-const { Contract, ... } = require('cashscript');
+const { Contract, ... } = require('ionio');
 ```
 
 Using the Ionio SDK, you can import contract artifact files, create new instances of these contracts, and interact with these instances:
@@ -73,31 +73,4 @@ Using the Ionio SDK, you can import contract artifact files, create new instance
 
   console.log(txDetails);
 ...
-```
-
-## Examples
-If you want to see Ionio in action and check out its usage, there are several example contracts in the [`examples/`](/examples) directory. The `.ionio` files contain example contracts, and the `.ts` files contain example usage of the Ionio SDK to interact with these contracts.
-
-The "Hello World" of Ionio contracts is defining the P2PKH pattern inside a contract, which can be found under [`examples/p2pkh.ionio`](/examples/p2pkh.ionio). Its usage can be found under [`examples/p2pkh.ts`](/examples/p2pkh.ts).
-
-### Running the examples
-To run the examples, clone this repository and navigate to the `examples/` directory. Since the examples depend on the SDK, be sure to run `npm install` or `yarn` inside the `examples/` directory, which installs all required packages.
-
-```bash
-git clone git@github.com:Bitcoin-com/cashscript.git
-cd cashscript/examples
-npm install
-```
-
-All `.ts` files in the [`examples/`](/examples) directory can then be executed with `ts-node`.
-
-```bash
-npm install -g ts-node
-ts-node p2pkh.ts
-```
-
-All `.js` files can be executed with `node`.
-
-```bash
-node p2pkh.js
 ```
