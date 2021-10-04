@@ -9,7 +9,7 @@ import {
   TupleType,
   BytesType,
   Type,
-} from '@cashscript/utils';
+} from '../../../utils';
 import {
   AssignNode,
   BranchNode,
@@ -196,7 +196,8 @@ export default class TypeCheckTraversal extends AstTraversal {
         expectSameSizeBytes(node, node.left.type, node.right.type);
         node.type = node.left.type;
         return node;
-      case BinaryOperator.SPLIT:
+      // TODO
+      /* case BinaryOperator.SPLIT:
         expectAnyOfTypes(node, node.left.type, [new BytesType(), PrimitiveType.STRING]);
         expectInt(node, node.right.type);
 
@@ -204,7 +205,7 @@ export default class TypeCheckTraversal extends AstTraversal {
         node.type = new TupleType(
           node.left.type instanceof BytesType ? new BytesType() : PrimitiveType.STRING,
         );
-        return node;
+        return node; */
       default:
         return node;
     }
@@ -226,11 +227,12 @@ export default class TypeCheckTraversal extends AstTraversal {
         expectAnyOfTypes(node, node.expression.type, [new BytesType(), PrimitiveType.STRING]);
         node.type = PrimitiveType.INT;
         return node;
-      case UnaryOperator.REVERSE:
+      // TODO 
+     /*  case UnaryOperator.REVERSE:
         expectAnyOfTypes(node, node.expression.type, [new BytesType(), PrimitiveType.STRING]);
         // Type is preserved
         node.type = node.expression.type;
-        return node;
+        return node; */
       default:
         return node;
     }

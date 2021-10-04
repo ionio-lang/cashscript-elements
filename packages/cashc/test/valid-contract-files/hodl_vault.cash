@@ -4,29 +4,18 @@
 // Instead, a message with a block number and price from after the minBlock needs to be passed.
 // This contract serves as a simple example for checkDataSig-based contracts.
 contract HodlVault(
-    pubkey ownerPk,
     pubkey oraclePk,
-    int minBlock,
     int priceTarget
 ) {
-    function spend(sig ownerSig, datasig oracleSig, bytes8 oracleMessage) {
-        // message: { blockHeight, price }
-        int blockHeight = int(oracleMessage.split(4)[0]);
-        int price = int(oracleMessage.split(4)[1]);
-
-        // Check that blockHeight is after minBlock and not in the future
-        require(blockHeight >= minBlock);
-        require(tx.time >= blockHeight);
-
+    function spend(datasig oracleSig, int oraclePrice) {
         // Check that current price is at least priceTarget
-        require(price >= priceTarget);
+        require(oraclePrice >= priceTarget);
 
         // Handle necessary signature checks
-        require(checkDataSig(
+        require(checkSigFromStack(
             oracleSig,
-            oracleMessage,
+            bytes(oraclePrice),
             oraclePk,
         ));
-        require(checkSig(ownerSig, ownerPk));
     }
 }

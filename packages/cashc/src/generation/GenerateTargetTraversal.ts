@@ -10,7 +10,7 @@ import {
   resultingType,
   Script,
   scriptToAsm,
-} from '@cashscript/utils';
+} from '../../../utils';
 import {
   ContractNode,
   ParameterNode,
@@ -149,10 +149,11 @@ export default class GenerateTargetTraversal extends AstTraversal {
   visitFunctionDefinition(node: FunctionDefinitionNode): Node {
     this.currentFunction = node;
 
-    if (node.preimageFields.length > 0) {
+    // TODO enable afaig preimage checks
+    /* if (node.preimageFields.length > 0) {
       this.covenantNeedsToBeVerified = true;
       this.decodePreimage(node.preimageFields);
-    }
+    } */
 
     node.parameters = this.visitList(node.parameters) as ParameterNode[];
     node.body = this.visit(node.body) as BlockNode;
@@ -163,6 +164,8 @@ export default class GenerateTargetTraversal extends AstTraversal {
     return node;
   }
 
+  //TODO enable again with OP_SPLIT equivalent in Elements
+  /*
   decodePreimage(fields: PreimageField[]): void {
     // Preimage is first arg after selector
     this.pushToStack('$preimage', true);
@@ -257,6 +260,7 @@ export default class GenerateTargetTraversal extends AstTraversal {
       this.emit(Op.OP_DROP);
     }
   }
+  */
 
   removeFinalVerify(): void {
     // After EnsureFinalRequireTraversal, we know that the final opcodes are either
@@ -391,18 +395,20 @@ export default class GenerateTargetTraversal extends AstTraversal {
   visitCast(node: CastNode): Node {
     node.expression = this.visit(node.expression);
 
+    // TODO need OP_NUM2BIN instruction in elements
     // Special case for sized bytes cast, since it has another node to traverse
-    if (node.size) {
+    /*   if (node.size) {
       node.size = this.visit(node.size);
       this.emit(Op.OP_NUM2BIN);
       this.popFromStack();
-    }
+    } */
 
     this.emit(compileCast(node.expression.type as PrimitiveType, node.type));
     this.popFromStack();
     this.pushToStack('(value)');
     return node;
   }
+
 
   visitFunctionCall(node: FunctionCallNode): Node {
     if (node.identifier.name === GlobalFunction.CHECKMULTISIG) {
@@ -411,7 +417,8 @@ export default class GenerateTargetTraversal extends AstTraversal {
 
     node.parameters = this.visitList(node.parameters);
 
-    if (this.needsToVerifyCovenant(node)) this.verifyCovenant();
+    // TODO enable again with OP_SPLIT 
+    if (this.needsToVerifyCovenant(node)) this.verifyCovenant();;
 
     this.emit(compileGlobalFunction(node.identifier.name as GlobalFunction));
     this.popFromStack(node.parameters.length);
@@ -440,6 +447,7 @@ export default class GenerateTargetTraversal extends AstTraversal {
     return true;
   }
 
+  
   verifyCovenant(): void {
     // Duplicate [s, pk] that are on stack
     this.emit(Op.OP_2DUP);
@@ -447,7 +455,8 @@ export default class GenerateTargetTraversal extends AstTraversal {
     this.pushToStack('(value)');
 
     // Turn sig into datasig
-    this.emit([Op.OP_SWAP, Op.OP_SIZE, Op.OP_1SUB, Op.OP_SPLIT, Op.OP_DROP]);
+    // Op.OP_0, Op.OP_SWAP, Op.OP_SUBSTR instead of OP_SPLIT, OP_DROP
+    this.emit([Op.OP_SWAP, Op.OP_SIZE, Op.OP_1SUB, Op.OP_0, Op.OP_SWAP, Op.OP_SUBSTR]);
 
     // Retrieve preimage from stack and hash it
     const preimageIndex = this.getStackIndex('$preimage');
@@ -457,9 +466,9 @@ export default class GenerateTargetTraversal extends AstTraversal {
     this.emit(Op.OP_SHA256);
     this.pushToStack('(value)');
 
-    // Order arguments and perform OP_CHECKDATASIGVERIFY
+    // Order arguments and perform CHECKSIGFROMSTACKVERIFY
     this.emit(Op.OP_ROT);
-    this.emit(Op.OP_CHECKDATASIGVERIFY);
+    this.emit(Op.OP_CHECKSIGFROMSTACKVERIFY);
     this.popFromStack(3);
 
     this.covenantNeedsToBeVerified = false;
@@ -565,7 +574,8 @@ export default class GenerateTargetTraversal extends AstTraversal {
     this.emit(compileBinaryOp(node.operator, isNumeric));
     this.popFromStack(2);
     this.pushToStack('(value)');
-    if (node.operator === BinaryOperator.SPLIT) this.pushToStack('(value');
+    // TODO enable again
+    // if (node.operator === BinaryOperator.SPLIT) this.pushToStack('(value');
     return node;
   }
 

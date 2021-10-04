@@ -1,17 +1,17 @@
 import {
-  OpcodesBCH,
   encodeDataPush,
   parseBytecode,
   serializeAuthenticationInstructions,
   AuthenticationInstructions,
   hexToBin,
-  disassembleBytecodeBCH,
+  disassembleBytecode,
   flattenBinArray,
 } from '@bitauth/libauth';
 import { decodeInt, encodeInt } from './data';
 import OptimisationsEquivFile from './cashproof-optimisations';
+import { OpcodesElements } from './elements-opcodes';
 
-export const Op = OpcodesBCH;
+export const Op = OpcodesElements;
 export type Op = number;
 export type OpOrData = Op | Uint8Array;
 export type Script = OpOrData[];
@@ -69,7 +69,7 @@ export function asmToBytecode(asm: string): Uint8Array {
 
 export function bytecodeToAsm(bytecode: Uint8Array): string {
   // Convert the bytecode to libauth's ASM format
-  let asm = disassembleBytecodeBCH(bytecode);
+  let asm = disassembleBytecode(OpcodesElements, bytecode);
 
   // COnvert libauth's ASM format to BITBOX's
   asm = asm.replace(/OP_PUSHBYTES_[^\s]+/g, '');

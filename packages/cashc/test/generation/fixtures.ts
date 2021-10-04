@@ -1,4 +1,4 @@
-import { Artifact } from '@cashscript/utils';
+import { Artifact } from '../../../utils';
 import fs from 'fs';
 import path from 'path';
 import { version } from '../../src';
@@ -243,17 +243,15 @@ export const fixtures: Fixture[] = [
     },
   },
   {
-    fn: 'checkdatasig.cash',
+    fn: 'checksigfromstack.cash',
     artifact: {
-      contractName: 'CheckDataSig',
+      contractName: 'CheckSigFromStack',
       constructorInputs: [],
-      abi: [{ name: 'hello', covenant: false, inputs: [{ name: 'pk', type: 'pubkey' }, { name: 's', type: 'sig' }, { name: 'data', type: 'bytes' }] }],
+      abi: [{ name: 'hello', covenant: false, inputs: [{ name: 's', type: 'sig' }, { name: 'data', type: 'bytes' }, { name: 'pk', type: 'pubkey' }] }],
       bytecode:
         // require(checkSig(s, pk))
-        'OP_2DUP OP_CHECKSIGVERIFY '
-        // require(checkDataSig(datasig(s), data, pk))
-        + 'OP_SWAP OP_SIZE OP_1SUB OP_SPLIT OP_DROP OP_ROT OP_ROT OP_CHECKDATASIG',
-      source: fs.readFileSync(path.join(__dirname, '..', 'valid-contract-files', 'checkdatasig.cash'), { encoding: 'utf-8' }),
+        'OP_DUP OP_3 OP_PICK OP_CHECKSIGVERIFY OP_SIZE OP_1SUB OP_0 OP_SWAP OP_SUBSTR OP_SWAP OP_ROT OP_CHECKSIGFROMSTACK',
+      source: fs.readFileSync(path.join(__dirname, '..', 'valid-contract-files', 'checksigfromstack.cash'), { encoding: 'utf-8' }),
       compiler: {
         name: 'cashc',
         version,
@@ -266,9 +264,7 @@ export const fixtures: Fixture[] = [
     artifact: {
       contractName: 'HodlVault',
       constructorInputs: [
-        { name: 'ownerPk', type: 'pubkey' },
         { name: 'oraclePk', type: 'pubkey' },
-        { name: 'minBlock', type: 'int' },
         { name: 'priceTarget', type: 'int' },
       ],
       abi: [
@@ -276,27 +272,13 @@ export const fixtures: Fixture[] = [
           name: 'spend',
           covenant: false,
           inputs: [
-            { name: 'ownerSig', type: 'sig' },
             { name: 'oracleSig', type: 'datasig' },
-            { name: 'oracleMessage', type: 'bytes8' },
+            { name: 'oraclePrice', type: 'int' },
           ],
         },
       ],
       bytecode:
-        // int blockHeight = int(oracleMessage.split(4)[0])
-        'OP_6 OP_PICK OP_4 OP_SPLIT OP_DROP OP_BIN2NUM '
-        // int price = int(oracleMessage.split(4)[1])
-        + 'OP_7 OP_PICK OP_4 OP_SPLIT OP_NIP OP_BIN2NUM '
-        // require(blockHeight >= minBlock);
-        + 'OP_OVER OP_5 OP_ROLL OP_GREATERTHANOREQUAL OP_VERIFY '
-        // require(tx.time >= blockHeight);
-        + 'OP_SWAP OP_CHECKLOCKTIMEVERIFY OP_DROP '
-        // require(price >= priceTarget);
-        + 'OP_3 OP_ROLL OP_GREATERTHANOREQUAL OP_VERIFY '
-        // require(checkDataSig(oracleSig, oracleMessage, oraclePk));
-        + 'OP_3 OP_ROLL OP_4 OP_ROLL OP_3 OP_ROLL OP_CHECKDATASIGVERIFY '
-        // require(checkSig(ownerSig, ownerPk));
-        + 'OP_CHECKSIG',
+        'OP_3 OP_PICK OP_ROT OP_GREATERTHANOREQUAL OP_VERIFY OP_SWAP OP_ROT OP_ROT OP_CHECKSIGFROMSTACK',
       source: fs.readFileSync(path.join(__dirname, '..', 'valid-contract-files', 'hodl_vault.cash'), { encoding: 'utf-8' }),
       compiler: {
         name: 'cashc',
@@ -366,7 +348,7 @@ export const fixtures: Fixture[] = [
         + '00 OP_EQUALVERIFY '
         // require(checkSig(s, pk)) + preimage verification
         + 'OP_ROT OP_ROT OP_2DUP OP_SWAP OP_SIZE OP_1SUB OP_SPLIT OP_DROP '
-        + 'OP_4 OP_ROLL OP_SHA256 OP_ROT OP_CHECKDATASIGVERIFY OP_CHECKSIG',
+        + 'OP_4 OP_ROLL OP_SHA256 OP_ROT OP_CHECKSIGFROMSTACKVERIFY OP_CHECKSIG',
       source: fs.readFileSync(path.join(__dirname, '..', 'valid-contract-files', 'covenant.cash'), { encoding: 'utf-8' }),
       compiler: {
         name: 'cashc',
@@ -397,7 +379,7 @@ export const fixtures: Fixture[] = [
         + '00 OP_EQUALVERIFY '
         // require(checkSig(s, pk)) + preimage verification
         + 'OP_2 OP_PICK OP_2 OP_PICK OP_2DUP OP_SWAP OP_SIZE OP_1SUB OP_SPLIT OP_DROP '
-        + 'OP_4 OP_ROLL OP_SHA256 OP_ROT OP_CHECKDATASIGVERIFY OP_CHECKSIGVERIFY '
+        + 'OP_4 OP_ROLL OP_SHA256 OP_ROT OP_CHECKSIGFROMSTACKVERIFY OP_CHECKSIGVERIFY '
         // require(checkSig(s, pk))
         + 'OP_CHECKSIG',
       source: fs.readFileSync(path.join(__dirname, '..', 'valid-contract-files', 'covenant_multiple_checksig.cash'), { encoding: 'utf-8' }),
@@ -421,7 +403,7 @@ export const fixtures: Fixture[] = [
         + 'OP_1 OP_EQUALVERIFY '
         // require(checkSig(s, pk)) + preimage verification
         + 'OP_ROT OP_ROT OP_2DUP OP_SWAP OP_SIZE OP_1SUB OP_SPLIT OP_DROP '
-        + 'OP_4 OP_ROLL OP_SHA256 OP_ROT OP_CHECKDATASIGVERIFY OP_CHECKSIG',
+        + 'OP_4 OP_ROLL OP_SHA256 OP_ROT OP_CHECKSIGFROMSTACKVERIFY OP_CHECKSIG',
       source: fs.readFileSync(path.join(__dirname, '..', 'valid-contract-files', 'covenant_only_hashtype.cash'), { encoding: 'utf-8' }),
       compiler: {
         name: 'cashc',
@@ -443,7 +425,7 @@ export const fixtures: Fixture[] = [
         + 'OP_1 OP_EQUALVERIFY '
         // require(checkSig(s, pk)) + preimage verification
         + 'OP_ROT OP_ROT OP_2DUP OP_SWAP OP_SIZE OP_1SUB OP_SPLIT OP_DROP '
-        + 'OP_4 OP_ROLL OP_SHA256 OP_ROT OP_CHECKDATASIGVERIFY OP_CHECKSIG',
+        + 'OP_4 OP_ROLL OP_SHA256 OP_ROT OP_CHECKSIGFROMSTACKVERIFY OP_CHECKSIG',
       source: fs.readFileSync(path.join(__dirname, '..', 'valid-contract-files', 'covenant_only_version.cash'), { encoding: 'utf-8' }),
       compiler: {
         name: 'cashc',
@@ -477,7 +459,7 @@ export const fixtures: Fixture[] = [
         + 'OP_ENDIF '
         // require(checkSig(s, altPk2)) + preimage verification
         + 'OP_6 OP_ROLL OP_4 OP_ROLL OP_2DUP OP_SWAP OP_SIZE OP_1SUB OP_SPLIT OP_DROP '
-        + 'OP_7 OP_ROLL OP_SHA256 OP_ROT OP_CHECKDATASIGVERIFY OP_CHECKSIGVERIFY '
+        + 'OP_7 OP_ROLL OP_SHA256 OP_ROT OP_CHECKSIGFROMSTACKVERIFY OP_CHECKSIGVERIFY '
         // require(tx.version == requiredVersion) + cleanup
         + 'OP_EQUAL OP_NIP OP_NIP',
       source: fs.readFileSync(path.join(__dirname, '..', 'valid-contract-files', 'covenant_nested_verify.cash'), { encoding: 'utf-8' }),
@@ -503,7 +485,7 @@ export const fixtures: Fixture[] = [
         + 'OP_3 OP_ROLL OP_1 OP_EQUALVERIFY OP_ROT OP_1 OP_EQUALVERIFY '
         + 'OP_SWAP OP_1 OP_EQUALVERIFY OP_1 OP_EQUALVERIFY '
         + 'OP_ROT OP_ROT OP_2DUP OP_SWAP OP_SIZE OP_1SUB OP_SPLIT OP_DROP '
-        + 'OP_4 OP_ROLL OP_SHA256 OP_ROT OP_CHECKDATASIGVERIFY OP_CHECKSIG',
+        + 'OP_4 OP_ROLL OP_SHA256 OP_ROT OP_CHECKSIGFROMSTACKVERIFY OP_CHECKSIG',
       source: fs.readFileSync(path.join(__dirname, '..', 'valid-contract-files', 'covenant_all_fields.cash'), { encoding: 'utf-8' }),
       compiler: {
         name: 'cashc',
@@ -527,7 +509,7 @@ export const fixtures: Fixture[] = [
         + 'OP_3 OP_ROLL OP_1 OP_EQUALVERIFY OP_SWAP OP_1 OP_EQUALVERIFY '
         + 'OP_SWAP OP_1 OP_EQUALVERIFY OP_1 OP_EQUALVERIFY '
         + 'OP_ROT OP_ROT OP_2DUP OP_SWAP OP_SIZE OP_1SUB OP_SPLIT OP_DROP '
-        + 'OP_4 OP_ROLL OP_SHA256 OP_ROT OP_CHECKDATASIGVERIFY OP_CHECKSIG',
+        + 'OP_4 OP_ROLL OP_SHA256 OP_ROT OP_CHECKSIGFROMSTACKVERIFY OP_CHECKSIG',
       source: fs.readFileSync(path.join(__dirname, '..', 'valid-contract-files', 'covenant_shuffled_fields.cash'), { encoding: 'utf-8' }),
       compiler: {
         name: 'cashc',
@@ -558,7 +540,7 @@ export const fixtures: Fixture[] = [
         + 'OP_8 OP_SPLIT OP_4 OP_SPLIT OP_NIP 20 OP_SPLIT OP_DROP '
         // require(checkSig(s, pk)) + preimage verification
         + 'OP_10 OP_ROLL OP_10 OP_ROLL OP_2DUP OP_SWAP OP_SIZE OP_1SUB OP_SPLIT OP_DROP '
-        + 'OP_12 OP_ROLL OP_SHA256 OP_ROT OP_CHECKDATASIGVERIFY OP_CHECKSIGVERIFY '
+        + 'OP_12 OP_ROLL OP_SHA256 OP_ROT OP_CHECKSIGFROMSTACKVERIFY OP_CHECKSIGVERIFY '
         // require(tx.age >= period)
         + 'OP_6 OP_ROLL OP_CHECKSEQUENCEVERIFY OP_DROP '
         // int minerFee = 1000
@@ -614,7 +596,7 @@ export const fixtures: Fixture[] = [
         + 'OP_8 OP_SPLIT OP_4 OP_SPLIT OP_NIP 20 OP_SPLIT OP_DROP '
         // require(checkSig(s, pk)) + covenant verification
         + 'OP_2ROT OP_2DUP OP_SWAP OP_SIZE OP_1SUB OP_SPLIT OP_DROP '
-        + 'OP_7 OP_ROLL OP_SHA256 OP_ROT OP_CHECKDATASIGVERIFY OP_CHECKSIGVERIFY '
+        + 'OP_7 OP_ROLL OP_SHA256 OP_ROT OP_CHECKSIGFROMSTACKVERIFY OP_CHECKSIGVERIFY '
         // bytes announcement = new OutputNullData(...)
         + '0000000000000000 6a 6d02 OP_SIZE OP_SWAP OP_CAT OP_CAT '
         + '4120636f6e7472616374206d6179206e6f7420696e6a75726520612068756d616e20626'
